@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from Point import Point
 from Plot import Plot
 from Field import Field
-from openpyxl import load_workbook # For readin xls(x)-files
+#from openpyxl import load_workbook # For readin xls(x)-files
 
 class Plan(object):
 
