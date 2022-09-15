@@ -182,7 +182,7 @@ class ResearchPlannerGUI(QMainWindow):
         import_field_action.triggered.connect(self.import_field)
 
         export_plots_action = QAction('Export Plots', self)
-        export_plots_action.setStatusTip('Export plots to Robotti compatible json-format')
+        export_plots_action.setStatusTip('Export plots to FieldSurveyor compatible json-format')
         export_plots_action.triggered.connect(self.export_plots)
 
         export_field_action = QAction('Export Field', self)
