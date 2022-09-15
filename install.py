@@ -10,7 +10,7 @@ def install():
         print('\nAn error occured while installing the requied packages:')
         print(ex)
     finally:
-        input("\nPress Enter to continue...")
+        input("\nPress Enter to exit...")
 
 # Example
 if __name__ == '__main__':
