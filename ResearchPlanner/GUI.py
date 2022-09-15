@@ -428,8 +428,9 @@ class ResearchPlannerGUI(QMainWindow):
                     )
 
         bounds = self.plan.draw(ax=self.map, show_field=self._show_field, show_plot=self._show_plots, show_AB_line=self._show_ab_lines, show_AB=self._show_ab_lines, show_end_points=self._show_end_points)
-        #TODO: Zoom to plots
-        self.map.fit_bounds()
+        bounds = [(float(p[0]), float(p[1])) for p in bounds] # Convert to native float, as numpy longdouble causes problems
+        # Zoom to plots
+        self.map.fit_bounds(bounds)
         # self.map.fit_bounds()
 
         # self.map.render()

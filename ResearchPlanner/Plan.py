@@ -1,6 +1,7 @@
 import csv
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 from Point import Point
 from Plot import Plot
 from Field import Field
@@ -149,7 +150,7 @@ class Plan(object):
 
         # if (self.field is not None and show_field):
             # self.field.draw(ax=ax)
-        
+        bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)] 
         if (self.plots is not None):
             for plot in self.plots:
 
@@ -158,10 +159,13 @@ class Plan(object):
                 else:
                     idle_alpha = 1.0
 
-                plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
+                _bounds = plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
+                bounds[0] = tuple(np.minimum(_bounds[0], bounds[0]))
+                bounds[1] = tuple(np.maximum(_bounds[1], bounds[1]))
 
         # ax.axis('equal')
         # ax.set_xlabel('East, m')
         # ax.set_ylabel('North, m')
 
         # return ax
+        return bounds

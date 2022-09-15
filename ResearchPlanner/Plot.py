@@ -137,10 +137,10 @@ class Plot(object):
 
     def draw(self, ax, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, idle_alpha=0.3):
 
+        corners = [(point.latitude, point.longitude) for point in self.corners]
         if (self.corners is not None) and (show_plot):
             east = [point.east for point in self.corners]
             north = [point.north for point in self.corners]
-            corners = [(point.latitude, point.longitude) for point in self.corners]
             folium.Polygon(corners, color='black', weight=1, opacity=1, fill=True, fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
             # ax.fill(east, north, edgecolor=[0,0,0],hatch='///', alpha=0.3*idle_alpha)
 
@@ -166,5 +166,7 @@ class Plot(object):
             else:
                 point = Point.midpoint(self.end_points)
             # ax.text(point.east, point.north, str(self.ID), horizontalalignment='center', verticalalignment='center', alpha=idle_alpha, picker=100)
+        bounds = [tuple(np.min(corners, axis=0)), tuple(np.max(corners, axis=0))]
+        return bounds
         
 # End of class Plot
