@@ -30,7 +30,7 @@ class Plan(object):
 
         P = []
         with open(filename, newline='') as csvfile:
-            csvreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            csvreader = csv.reader(csvfile, delimiter=';', quotechar='"')
             for row in csvreader:
                 if (is_utm):
                     P.append(Point(north=float(row[0]), east=float(row[1]), altitude=float(row[2])))
@@ -84,7 +84,7 @@ class Plan(object):
 
         self.field = Field(points=P)
 
-    def export_plots(self, filename):
+    def export_plots_to_robotti(self, filename):
 
         rows = []
 
@@ -109,9 +109,25 @@ class Plan(object):
                     'force_direction': 0 if plot.force_direction is False else 1}
             rows.append(row)
         robotti_plan = {'rows': rows}
-        
+
         fob = open(filename, 'w')
         json.dump(robotti_plan, fob, indent=3)
+
+    def export_plots_to_field_surveyor(self, filename, useUTM=True):
+        coordinates = []
+        for plot in self.plots:
+            if (useUTM):
+                A = [float(plot.ab_line[0].east), float(plot.ab_line[0].north)]
+                B = [float(plot.ab_line[1].east), float(plot.ab_line[1].north)]
+            else:
+                A = [float(plot.ab_line[0].longitude), float(plot.ab_line[0].latitude)]
+                B = [float(plot.ab_line[1].longitude), float(plot.ab_line[1].latitude)]
+            coordinates.append([A, B])
+        field_surveyor_plan = {"type": "MultiLineString",
+                               "coordinates": coordinates}
+        
+        fob = open(filename, 'w')
+        json.dump(field_surveyor_plan, fob, indent=3)
 
     def export_field(self, filename):
 

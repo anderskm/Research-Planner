@@ -322,7 +322,7 @@ class ResearchPlannerGUI(QMainWindow):
         try:
             export_dlg = GUI.ExportFileDialog()
             filename_out_plots = export_dlg.get_file(caption='Export plots')
-            self.plan.export_plots(filename_out_plots)
+            self.plan.export_plots_to_field_surveyor(filename_out_plots)
             self.statusBar().showMessage('Plots exported: ' + filename_out_plots)
         except UserWarning as e:
             self.statusBar().showMessage(str(e))
