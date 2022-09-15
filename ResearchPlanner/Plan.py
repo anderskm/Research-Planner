@@ -145,12 +145,10 @@ class Plan(object):
         pass
 
     def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
-        # if (ax is None):
-            # ax = plt.gca()
+        bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)]  # [southwest, northeast] bounding box of plots and field
 
-        # if (self.field is not None and show_field):
-            # self.field.draw(ax=ax)
-        bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)] 
+        #TODO: draw field
+
         if (self.plots is not None):
             for plot in self.plots:
 
@@ -163,9 +161,4 @@ class Plan(object):
                 bounds[0] = tuple(np.minimum(_bounds[0], bounds[0]))
                 bounds[1] = tuple(np.maximum(_bounds[1], bounds[1]))
 
-        # ax.axis('equal')
-        # ax.set_xlabel('East, m')
-        # ax.set_ylabel('North, m')
-
-        # return ax
         return bounds

@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 
 import io # For converting folium map to bytes readable by Qt
 import folium # For creating a map
+import numpy as np
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
@@ -244,7 +245,11 @@ class ResearchPlannerGUI(QMainWindow):
         ### Setup main area
         window_widget = QWidget()
 
+        ## Setup map
+        self.webView = QWebEngineView()
+
         coordinates_start = (55.753750, 10.229792)
+        bounds_Denmark = [(54.54, 8.0),(57.753, 15.20)]
         self.map = folium.Map(
                                 title='Plots',
                                 zoom_start=8,
@@ -252,25 +257,15 @@ class ResearchPlannerGUI(QMainWindow):
                                 tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                                 attr='Esri via ArcGIS Online',
                             )
-        # folium.PolyLine(locations=[(55.0, 10.0), (56.0, 10.0), (56.0, 11.0), (55.0, 11.0)], width=5, color='red').add_to(self.map)
-
-
-
-        self.webView = QWebEngineView()
+        self.map.fit_bounds(bounds_Denmark)
+        
         # Save map data to data object
         self.map_container = io.BytesIO()
         self.map.save(self.map_container, close_file=False)
         self.webView.setHtml(self.map_container.getvalue().decode())
 
-        ## Setup  figure canvas
-        # self.figure = Figure()
-        # self.canvas = FigureCanvas(self.figure)
-        # self.ax = self.figure.add_subplot(111)
-        self.ax = None
-        # self.canvas.mpl_connect('pick_event', self.on_pick_event)
         # ## Setup layout of window widget
         layout = QVBoxLayout()
-        # layout.addWidget(self.canvas)
         layout.addWidget(self.webView)
         window_widget.setLayout(layout)
 
@@ -416,7 +411,6 @@ class ResearchPlannerGUI(QMainWindow):
     def _update_canvas(self):
 
         self.statusBar().showMessage('Updating canvas...')
-        # self.ax.clear()
 
         coordinates_start = (55.753750, 10.229792)
         self.map = folium.Map(
@@ -428,19 +422,14 @@ class ResearchPlannerGUI(QMainWindow):
                     )
 
         bounds = self.plan.draw(ax=self.map, show_field=self._show_field, show_plot=self._show_plots, show_AB_line=self._show_ab_lines, show_AB=self._show_ab_lines, show_end_points=self._show_end_points)
-        bounds = [(float(p[0]), float(p[1])) for p in bounds] # Convert to native float, as numpy longdouble causes problems
-        # Zoom to plots
-        self.map.fit_bounds(bounds)
-        # self.map.fit_bounds()
-
-        # self.map.render()
+        cm = [float(c) for c in np.mean(bounds, axis=0)] # Force to native float, as numpy's longdouble causes problems
+        bounds = [(float(p[0]), float(p[1])) for p in bounds] # Force to native float, as numpy's longdouble causes problems
+        folium.Marker(location=cm).add_to(self.map)
+        self.map.fit_bounds(bounds) # Zoom to field/plots
         self.map_container = io.BytesIO()
         self.map.save(self.map_container, close_file=False)
         self.webView.setHtml(self.map_container.getvalue().decode())
 
-        # ResearchPlan.plt.show()
-
-        # self.canvas.draw()
         self.statusBar().showMessage('Canvas updated')
 
 if __name__ == '__main__':
