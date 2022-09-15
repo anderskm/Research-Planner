@@ -15,7 +15,7 @@ import Plan as ResearchPlan
 class GUI():
     def __init__(self):
         self.app = QApplication([])
-        self.app.setApplicationName("Robotti Research Planner")
+        self.app.setApplicationName("Research Planner")
         self.app.setOrganizationName("Aarhus University")
         self.app.setOrganizationDomain("agro.au.dk")
 
