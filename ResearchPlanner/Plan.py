@@ -144,11 +144,11 @@ class Plan(object):
         pass
 
     def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
-        if (ax is None):
-            ax = plt.gca()
+        # if (ax is None):
+            # ax = plt.gca()
 
-        if (self.field is not None and show_field):
-            self.field.draw(ax=ax)
+        # if (self.field is not None and show_field):
+            # self.field.draw(ax=ax)
         
         if (self.plots is not None):
             for plot in self.plots:
@@ -160,8 +160,8 @@ class Plan(object):
 
                 plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
 
-        ax.axis('equal')
-        ax.set_xlabel('East, m')
-        ax.set_ylabel('North, m')
+        # ax.axis('equal')
+        # ax.set_xlabel('East, m')
+        # ax.set_ylabel('North, m')
 
-        return ax
+        # return ax

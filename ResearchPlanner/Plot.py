@@ -1,4 +1,5 @@
 import copy
+import folium
 import numpy as np
 from Point import Point
 
@@ -139,25 +140,31 @@ class Plot(object):
         if (self.corners is not None) and (show_plot):
             east = [point.east for point in self.corners]
             north = [point.north for point in self.corners]
-            ax.fill(east, north, edgecolor=[0,0,0],hatch='///', alpha=0.3*idle_alpha)
+            corners = [(point.latitude, point.longitude) for point in self.corners]
+            folium.Polygon(corners, color='black', weight=1, opacity=1, fill=True, fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
+            # ax.fill(east, north, edgecolor=[0,0,0],hatch='///', alpha=0.3*idle_alpha)
 
         if (self.ab_line is not None) and (show_AB_line):
             east = [point.east for point in self.ab_line]
             north = [point.north for point in self.ab_line]
-            ax.plot(east, north, marker='', linestyle='solid', color='grey', linewidth=2, alpha=idle_alpha)
-            if show_AB:
-                ax.text(east[0], north[0], 'A', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
-                ax.text(east[1], north[1], 'B', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
+            points = [(point.latitude, point.longitude) for point in self.ab_line]
+            print(points)
+            folium.PolyLine(points, color='red', weight=1, opacity=1).add_to(ax)
+            # ax.plot(east, north, marker='', linestyle='solid', color='grey', linewidth=2, alpha=idle_alpha)
+            # if show_AB:
+                # ax.text(east[0], north[0], 'A', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
+                # ax.text(east[1], north[1], 'B', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
 
         if (self.end_points is not None) and (show_end_points):
             east = [point.east for point in self.end_points]
             north = [point.north for point in self.end_points]
-            ax.plot(east, north, marker='.', linestyle='dashed', color='black', linewidth=1, alpha=idle_alpha)
+            # ax.plot(east, north, marker='.', linestyle='dashed', color='black', linewidth=1, alpha=idle_alpha)
             
         if (show_ID and self.ID is not None):
             if (self.corners is not None):
                 point = Point.midpoint(self.corners)
             else:
                 point = Point.midpoint(self.end_points)
-            ax.text(point.east, point.north, str(self.ID), horizontalalignment='center', verticalalignment='center', alpha=idle_alpha, picker=100)
+            # ax.text(point.east, point.north, str(self.ID), horizontalalignment='center', verticalalignment='center', alpha=idle_alpha, picker=100)
+        
 # End of class Plot
