@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-
 import io # For converting folium map to bytes readable by Qt
 import folium # For creating a map
 import numpy as np

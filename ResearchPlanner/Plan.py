@@ -1,6 +1,5 @@
 import csv
 import json
-import matplotlib.pyplot as plt
 import numpy as np
 from Point import Point
 from Plot import Plot
