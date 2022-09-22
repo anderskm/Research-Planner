@@ -1,4 +1,5 @@
 import copy
+import folium
 import numpy as np
 from Point import Point
 
@@ -136,28 +137,27 @@ class Plot(object):
 
     def draw(self, ax, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, idle_alpha=0.3):
 
+        corners = [(point.latitude, point.longitude) for point in self.corners]
         if (self.corners is not None) and (show_plot):
             east = [point.east for point in self.corners]
             north = [point.north for point in self.corners]
-            ax.fill(east, north, edgecolor=[0,0,0],hatch='///', alpha=0.3*idle_alpha)
+            folium.Polygon(corners, color='black', weight=1, opacity=1, fill=True, fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
 
         if (self.ab_line is not None) and (show_AB_line):
             east = [point.east for point in self.ab_line]
             north = [point.north for point in self.ab_line]
-            ax.plot(east, north, marker='', linestyle='solid', color='grey', linewidth=2, alpha=idle_alpha)
-            if show_AB:
-                ax.text(east[0], north[0], 'A', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
-                ax.text(east[1], north[1], 'B', horizontalalignment='center', verticalalignment='center', alpha=idle_alpha)
+            points = [(point.latitude, point.longitude) for point in self.ab_line]
+            folium.PolyLine(points, color='red', weight=1, opacity=1).add_to(ax)
 
         if (self.end_points is not None) and (show_end_points):
             east = [point.east for point in self.end_points]
             north = [point.north for point in self.end_points]
-            ax.plot(east, north, marker='.', linestyle='dashed', color='black', linewidth=1, alpha=idle_alpha)
+            # ax.plot(east, north, marker='.', linestyle='dashed', color='black', linewidth=1, alpha=idle_alpha)
+            # TODO
             
         if (show_ID and self.ID is not None):
-            if (self.corners is not None):
-                point = Point.midpoint(self.corners)
-            else:
-                point = Point.midpoint(self.end_points)
-            ax.text(point.east, point.north, str(self.ID), horizontalalignment='center', verticalalignment='center', alpha=idle_alpha, picker=100)
+            pass # Moved to popup for full plot polygon
+        bounds = [tuple(np.min(corners, axis=0)), tuple(np.max(corners, axis=0))]
+        return bounds
+        
 # End of class Plot

@@ -1,4 +1,6 @@
 matplotlib>=3.0.0
 numpy>=1.15.0
 PyQt5>=5.0.0
+PyQtWebEngine>=5.15.0
+folium>=0.12
 utm>=0.4.2

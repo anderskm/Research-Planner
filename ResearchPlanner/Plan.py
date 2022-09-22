@@ -1,6 +1,7 @@
 import csv
 import json
-import matplotlib.pyplot as plt
+import folium
+import numpy as np
 from Point import Point
 from Plot import Plot
 from Field import Field
@@ -41,6 +42,13 @@ class Plan(object):
                 plot_id.append(str(row[3]))
 
         plot_ids_unique = list(set(plot_id))
+
+        # Sort plots by numeric ID
+        try:
+            plot_ids_unique.sort(key=lambda x: int(x))
+        except ex:
+            print('Could not sort plots automatically by number.')
+            pass
 
         plots = []
         for this_id in plot_ids_unique:
@@ -143,14 +151,22 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
-    def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
-        if (ax is None):
-            ax = plt.gca()
+    def _draw_route(self, ax):
+        waypoints = []
+        for plot in self.plots:
+            for point in plot.ab_line:
+                waypoints.append((point.latitude, point.longitude))
+        folium.PolyLine(waypoints, color='blue', weight=1, opacity=1).add_to(ax)
 
-        if (self.field is not None and show_field):
-            self.field.draw(ax=ax)
-        
+    def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
+        bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)]  # [southwest, northeast] bounding box of plots and field
+
+        #TODO: draw field
+
         if (self.plots is not None):
+
+            self._draw_route(ax=ax)
+
             for plot in self.plots:
 
                 if (hide_idle_plots and (not plot.work or plot.ignored)):
@@ -158,10 +174,8 @@ class Plan(object):
                 else:
                     idle_alpha = 1.0
 
-                plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
+                _bounds = plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
+                bounds[0] = tuple(np.minimum(_bounds[0], bounds[0]))
+                bounds[1] = tuple(np.maximum(_bounds[1], bounds[1]))
 
-        ax.axis('equal')
-        ax.set_xlabel('East, m')
-        ax.set_ylabel('North, m')
-
-        return ax
+        return bounds
