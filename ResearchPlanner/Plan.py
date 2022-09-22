@@ -151,8 +151,20 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
+    def _smooth_route(self):
+        pass
+
+        # TODO: Select starting plot
+
+        # TODO: For each plot, swap ends so the first end points is closest to the last end point of the previous plot
+        for prev_plot, next_plot in zip(self.plots[0:-1], self.plots[1:]):
+            if prev_plot.end_points[-1].distance(next_plot.end_points[0]) > prev_plot.end_points[-1].distance(next_plot.end_points[-1]):
+                next_plot._swap_ends()
+                print(prev_plot.ID, next_plot.ID, 'Swapped')
+
     def _draw_route(self, ax):
         waypoints = []
+        self._smooth_route()
         for plot in self.plots:
             for point in plot.ab_line:
                 waypoints.append((point.latitude, point.longitude))
