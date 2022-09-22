@@ -1,5 +1,6 @@
 import csv
 import json
+import folium
 import numpy as np
 from Point import Point
 from Plot import Plot
@@ -143,12 +144,22 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
+    def _draw_route(self, ax):
+        waypoints = []
+        for plot in self.plots:
+            for point in plot.ab_line:
+                waypoints.append((point.latitude, point.longitude))
+        folium.PolyLine(waypoints, color='blue', weight=1, opacity=1).add_to(ax)
+
     def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
         bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)]  # [southwest, northeast] bounding box of plots and field
 
         #TODO: draw field
 
         if (self.plots is not None):
+
+            self._draw_route(ax=ax)
+
             for plot in self.plots:
 
                 if (hide_idle_plots and (not plot.work or plot.ignored)):
