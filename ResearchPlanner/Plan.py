@@ -43,6 +43,13 @@ class Plan(object):
 
         plot_ids_unique = list(set(plot_id))
 
+        # Sort plots by numeric ID
+        try:
+            plot_ids_unique.sort(key=lambda x: int(x))
+        except ex:
+            print('Could not sort plots automatically by number.')
+            pass
+
         plots = []
         for this_id in plot_ids_unique:
             corner_points = [p for p, i in zip(P,plot_id) if (i == this_id)]
