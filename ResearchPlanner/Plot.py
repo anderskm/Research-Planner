@@ -133,6 +133,10 @@ class Plot(object):
 
         return plot_side_warning_flag
 
+    def _swap_ends(self):
+        self.ab_line = [self.ab_line[1], self.ab_line[0]]
+        self.end_points = [self.end_points[1], self.end_points[0]]
+
     def _rectify_plot(self):
         # Turn approximately rectangular plot into a rectangular plot
         pass
