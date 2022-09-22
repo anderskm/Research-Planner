@@ -76,32 +76,34 @@ class Plot(object):
 
     def _sort_corners(self):
         plot_side_warning_flag = False
+        if not self._corners_are_sorted:
 
-        # Step 1: Sort the points in anti-clockwise order
-        x = np.asarray([p.east for p in self.corners])
-        y = np.asarray([p.north for p in self.corners])
-        theta = np.arctan2(y-np.mean(y),x-np.mean(x))
-        theta, corners = (list(t) for t in zip(*sorted(zip(theta, self.corners))))
+            # Step 1: Sort the points in anti-clockwise order
+            x = np.asarray([p.east for p in self.corners])
+            y = np.asarray([p.north for p in self.corners])
+            theta = np.arctan2(y-np.mean(y),x-np.mean(x))
+            theta, corners = (list(t) for t in zip(*sorted(zip(theta, self.corners))))
 
-        # Step 2: Determine short side and long side of plot
-        d01 = corners[0].distance(corners[1])
-        d12 = corners[1].distance(corners[2])
-        d23 = corners[2].distance(corners[3])
-        d30 = corners[3].distance(corners[0])
+            # Step 2: Determine short side and long side of plot
+            d01 = corners[0].distance(corners[1])
+            d12 = corners[1].distance(corners[2])
+            d23 = corners[2].distance(corners[3])
+            d30 = corners[3].distance(corners[0])
 
-        if (np.abs(d01-d23) > 0.05) or (np.abs(d12 - d30) > 0.05):
-            plot_side_warning_flag = True
+            if (np.abs(d01-d23) > 0.05) or (np.abs(d12 - d30) > 0.05):
+                plot_side_warning_flag = True
 
-        if (d01 + d23 > d12 + d30):
-            longside_idx = [0, 1, 2, 3]
-            shortside_idx = [1, 2, 3, 0]
-        else:
-            longside_idx = [1, 2, 3, 0]
-            shortside_idx = [0, 1, 2, 3]
+            if (d01 + d23 > d12 + d30):
+                longside_idx = [0, 1, 2, 3]
+                shortside_idx = [1, 2, 3, 0]
+            else:
+                longside_idx = [1, 2, 3, 0]
+                shortside_idx = [0, 1, 2, 3]
 
-        self.corners = corners
-        self._longside_idx = longside_idx
-        self._shortside_idx = shortside_idx
+            self.corners = corners
+            self._longside_idx = longside_idx
+            self._shortside_idx = shortside_idx
+            self._corners_are_sorted = True
 
         return plot_side_warning_flag
 
