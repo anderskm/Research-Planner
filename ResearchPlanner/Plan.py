@@ -151,10 +151,23 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
-    def _smooth_route(self):
-        pass
+    def _smooth_route(self, start_ID=None):
+        # TODO: Collect plots into blocks and sort the blocks
+            # TODO: Find the end points of the end plots. Assume these are entry and exit
 
-        # TODO: Select starting plot
+        # Select starting plot
+        if start_ID is None:
+            end_points = []
+            for plot in self.plots:
+                for end_point in plot.end_points:
+                    end_points.append([end_point.east, end_point.north])
+            center_point = np.mean(end_points, axis=0)
+            end_point_distances = np.sqrt(np.sum(np.power(end_points - center_point, 2), axis=1))
+            max_distance_idx = np.argmax(end_point_distances)
+            plot_idx = int(max_distance_idx/2)
+            self.plots = self.plots[plot_idx:] + self.plots[:plot_idx-1]
+            if (max_distance_idx % 2):
+                self.plots[0].swap_ends
 
         # TODO: For each plot, swap ends so the first end points is closest to the last end point of the previous plot
         for prev_plot, next_plot in zip(self.plots[0:-1], self.plots[1:]):
