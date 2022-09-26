@@ -2,6 +2,9 @@ import csv
 import json
 import folium
 import numpy as np
+from scipy.spatial import distance
+from sklearn.cluster import *
+
 from Point import Point
 from Plot import Plot
 from Field import Field
@@ -59,6 +62,8 @@ class Plan(object):
             plots.append(plot)
 
         self.plots = plots
+
+        self._cluster_plots_into_blocks()
 
     # def from_plot_xls(self, filename, sheetname=None, sheetIdx=0):
     #     wb = load_workbook(filename) # https://openpyxl.readthedocs.io/en/stable/usage.html#read-an-existing-workbook
@@ -151,9 +156,41 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
+    def _cluster_plots_into_blocks(self):
+        plot_centers = []
+        for plot in self.plots:
+            plot_centers.append([plot.center.east, plot.center.north])
+        cm_distances = distance.squareform(distance.pdist(plot_centers))
+        distance_thresh = np.median([plot.width for plot in self.plots])*1.5
+        connectivity = np.logical_and(cm_distances < distance_thresh, cm_distances > 0).astype(int)
+        connectivity_arrays = np.nonzero(connectivity)
+        connectivity_list = [[] for i in range(len(plot_centers))]
+        for ca_r, ca_c in zip(connectivity_arrays[0], connectivity_arrays[1]):
+            connectivity_list[ca_r].append(ca_c)
+
+
+        def assign_cluster_recursive(p, new_cluster_id):
+            for p2 in p:
+                if cluster_id[p2]:
+                    continue
+                cluster_id[p2] = new_cluster_id
+                assign_cluster_recursive(connectivity_list[p2], new_cluster_id)
+
+        cluster_id = np.zeros((len(connectivity_list),1))
+        for p, c in zip(connectivity_list, cluster_id):
+            if c:
+                continue
+
+            new_cluster_id = cluster_id.max()+1
+            c = new_cluster_id
+
+            assign_cluster_recursive(p, new_cluster_id)
+            pass
+
+        for cluster, plot in zip(cluster_id, self.plots):
+            plot.block = int(cluster)
+
     def _smooth_route(self, start_ID=None):
-        # TODO: Collect plots into blocks and sort the blocks
-            # TODO: Find the end points of the end plots. Assume these are entry and exit
 
         # Select starting plot
         if start_ID is None:
