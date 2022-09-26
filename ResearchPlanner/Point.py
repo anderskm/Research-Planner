@@ -17,12 +17,13 @@ class Point(object):
 
         # If x or y is specified, try to guess if it is utm or latlon coordinates based on their size
         if (x is not None and y is not None):
-            if y > 90.0 or y < -90.0 or x < -180.0 or x > 180.0:
-                north = y
-                east = x
-            else:
+            # if y > 90.0 or y < -90.0 or x < -180.0 or x > 180.0:
+            if -90.0 < y or y < 90.0 or -180.0 < x or x < 180.0:
                 latitude = y
                 longitude = x
+            else:
+                north = y
+                east = x
 
         if (latitude is not None and longitude is not None):
             latitude = np.longdouble(latitude)
@@ -55,7 +56,7 @@ class Point(object):
         if (self._source == 'latlon'):
             str_out += '(' + '{: 12.8f}'.format(self.latitude) + u"\u00b0" + ';' + '{: 12.8f}'.format(self.longitude) + u"\u00b0" ')\n'
         elif(self._source == 'utm'):
-            str_out += '(' + '{: 12.3f}'.format(self.east) + ' m E' + ';' + '{: 12.3f}'.format(self.north) + ' m N' + '), Zone: ' + '{:d}'.format(self.zone) + '\n'
+            str_out += '(' + '{: 12.3f}'.format(self.east) + ' m E' + ';' + '{: 12.3f}'.format(self.north) + ' m N' + '), Zone: ' + '{:d}'.format(self.zone)
         else:
             str_out += 'Latitude : ' + '{: 12.8f}'.format(self.latitude) + u"\u00b0" + '\n'
             str_out += 'Longitude: ' + '{: 12.8f}'.format(self.longitude) + u"\u00b0" + '\n'
