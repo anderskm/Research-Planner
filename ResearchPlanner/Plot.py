@@ -10,6 +10,7 @@ class Plot(object):
     ab_line = None
     end_points = None
     width = None
+    length = None
     ignored = False
     force_direction = False
 
@@ -38,6 +39,10 @@ class Plot(object):
             self._source = 'corners'
             self._sort_corners()
             plot_side_warning_flag = self._corners_to_ab_line(corners)
+            self.width = np.mean([self.corners[self._shortside_idx[0]].distance(self.corners[self._shortside_idx[1]]),
+                                  self.corners[self._shortside_idx[2]].distance(self.corners[self._shortside_idx[3]])])
+            self.length = np.mean([self.corners[self._longside_idx[0]].distance(self.corners[self._longside_idx[1]]),
+                                   self.corners[self._longside_idx[2]].distance(self.corners[self._longside_idx[3]])])
 
         elif ab_line is not None and end_points is not None:
             # Estimate corners
@@ -51,6 +56,8 @@ class Plot(object):
         else:
             pass
         
+        self.center = Point.midpoint(self.end_points, method='utm')
+
         self.ID = copy.deepcopy(ID)
         self.force_direction = copy.deepcopy(force_direction)
         self.ignored = copy.deepcopy(ignored)
@@ -62,15 +69,17 @@ class Plot(object):
     def __str__(self):
         str_out = ''
         str_out += 'Plot ID   : ' + str(self.ID) + '\n'
+        str_out += 'Size      : ' + '{:.1f}'.format(self.width) + 'm x ' + '{:.1f}'.format(self.length) + 'm\n'
         str_out += 'Corners   : ' + str(len(self.corners)) + '\n'
-        for p in self.corners:
-            str_out += '   ' + str(p)
+        # for p in self.corners:
+        #     str_out += '   ' + str(p) + '\n'
+        str_out += 'Center    : ' + str(self.center) + '\n'
         str_out += 'AB-line   : ' + str(len(self.ab_line)) + '\n'
-        for p in self.ab_line:
-            str_out += '   ' + str(p)
+        # for p in self.ab_line:
+        #     str_out += '   ' + str(p) + '\n'
         str_out += 'End points: ' + str(len(self.end_points)) + '\n'
         for p in self.end_points:
-            str_out += '   ' + str(p)
+            str_out += '   ' + str(p) + '\n'
         
         return str_out
 
