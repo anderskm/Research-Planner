@@ -165,23 +165,29 @@ class Plan(object):
             end_point_distances = np.sqrt(np.sum(np.power(end_points - center_point, 2), axis=1))
             max_distance_idx = np.argmax(end_point_distances)
             plot_idx = int(max_distance_idx/2)
-            self.plots = self.plots[plot_idx:] + self.plots[:plot_idx-1]
+            self.plots = self.plots[plot_idx:] + self.plots[:plot_idx]
             if (max_distance_idx % 2):
-                self.plots[0].swap_ends
+                self.plots[0]._swap_ends()
 
         # TODO: For each plot, swap ends so the first end points is closest to the last end point of the previous plot
         for prev_plot, next_plot in zip(self.plots[0:-1], self.plots[1:]):
             if prev_plot.end_points[-1].distance(next_plot.end_points[0]) > prev_plot.end_points[-1].distance(next_plot.end_points[-1]):
                 next_plot._swap_ends()
-                print(prev_plot.ID, next_plot.ID, 'Swapped')
+                # print(prev_plot.ID, next_plot.ID, 'Swapped')
 
     def _draw_route(self, ax):
         waypoints = []
+        segment_id = []
         self._smooth_route()
-        for plot in self.plots:
+        for idx, plot in enumerate(self.plots):
             for point in plot.ab_line:
                 waypoints.append((point.latitude, point.longitude))
-        folium.PolyLine(waypoints, color='blue', weight=1, opacity=1).add_to(ax)
+            segment_id.append(idx)
+            segment_id.append(-1)
+        # folium.PolyLine(waypoints, color='blue', weight=1, opacity=1).add_to(ax)
+        folium.ColorLine(waypoints, colors=segment_id[:-1], colormap=("blue", "red")).add_to(ax)
+        folium.Marker(location=waypoints[0], color='blue', popup='Start').add_to(ax)
+        folium.Marker(location=waypoints[-1], color='red', popup='Stop').add_to(ax)
 
     def draw(self, ax=None, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, show_field=True):
         bounds = [(np.Inf, np.Inf),(-np.Inf, -np.Inf)]  # [southwest, northeast] bounding box of plots and field
