@@ -150,7 +150,7 @@ class Plot(object):
         # Turn approximately rectangular plot into a rectangular plot
         pass
 
-    def draw(self, ax, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, idle_alpha=0.3):
+    def draw(self, ax, show_ID=True, show_plot=True, show_AB_line=True, show_AB=True, show_end_points=True, hide_idle_plots=True, idle_alpha=0.3, color='black'):
 
         color_names = ['red', 'blue', 'green', 'purple', 'orange', 'darkred','lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray']
 
@@ -158,7 +158,8 @@ class Plot(object):
         if (self.corners is not None) and (show_plot):
             east = [point.east for point in self.corners]
             north = [point.north for point in self.corners]
-            folium.Polygon(corners, color=color_names[self.block], weight=1, opacity=1, fill=True, fillColor=color_names[self.block] ,fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
+            # folium.Polygon(corners, color=color_names[self.block], weight=1, opacity=1, fill=True, fillColor=color_names[self.block] ,fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
+            folium.Polygon(corners, color=color, weight=1, opacity=1, fill=True, fillColor=color ,fillOpacity= 0.3, popup='Plot: ' + str(self.ID)).add_to(ax)
 
         if (self.ab_line is not None) and (show_AB_line):
             east = [point.east for point in self.ab_line]

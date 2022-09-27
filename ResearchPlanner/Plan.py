@@ -1,3 +1,4 @@
+import copy
 import csv
 import json
 import folium
@@ -7,6 +8,7 @@ from sklearn.cluster import *
 
 from Point import Point
 from Plot import Plot
+from Block import Block
 from Field import Field
 #from openpyxl import load_workbook # For readin xls(x)-files
 
@@ -61,9 +63,9 @@ class Plan(object):
             plot = Plot(corners=corner_points, ID=this_id, work=work, hitch_height=hitch_height, working_speed=working_speed, pto_rpm=pto_rpm)
             plots.append(plot)
 
-        self.plots = plots
+        # self.plots = plots
 
-        self._cluster_plots_into_blocks()
+        self.blocks = copy.deepcopy(self._cluster_plots_into_blocks(plots))
 
     # def from_plot_xls(self, filename, sheetname=None, sheetIdx=0):
     #     wb = load_workbook(filename) # https://openpyxl.readthedocs.io/en/stable/usage.html#read-an-existing-workbook
@@ -156,12 +158,12 @@ class Plan(object):
         # json.dump(self.plan, fob, indent=3)
         pass
 
-    def _cluster_plots_into_blocks(self):
+    def _cluster_plots_into_blocks(self, plots):
         plot_centers = []
-        for plot in self.plots:
+        for plot in plots:
             plot_centers.append([plot.center.east, plot.center.north])
         cm_distances = distance.squareform(distance.pdist(plot_centers))
-        distance_thresh = np.median([plot.width for plot in self.plots])*1.5
+        distance_thresh = np.median([plot.width for plot in plots])*1.5
         connectivity = np.logical_and(cm_distances < distance_thresh, cm_distances > 0).astype(int)
         connectivity_arrays = np.nonzero(connectivity)
         connectivity_list = [[] for i in range(len(plot_centers))]
@@ -171,24 +173,31 @@ class Plan(object):
 
         def assign_cluster_recursive(p, new_cluster_id):
             for p2 in p:
-                if cluster_id[p2]:
+                if cluster_ids[p2]:
                     continue
-                cluster_id[p2] = new_cluster_id
+                cluster_ids[p2] = new_cluster_id
                 assign_cluster_recursive(connectivity_list[p2], new_cluster_id)
 
-        cluster_id = np.zeros((len(connectivity_list),1))
-        for p, c in zip(connectivity_list, cluster_id):
+        cluster_ids = np.zeros((len(connectivity_list),1))
+        for p, c in zip(connectivity_list, cluster_ids):
             if c:
                 continue
 
-            new_cluster_id = cluster_id.max()+1
+            new_cluster_id = cluster_ids.max()+1
             c = new_cluster_id
 
             assign_cluster_recursive(p, new_cluster_id)
             pass
 
-        for cluster, plot in zip(cluster_id, self.plots):
-            plot.block = int(cluster)
+        blocks = []
+        for cluster in np.unique(cluster_ids):
+            block_plots = [plot for plot, cluster_id in zip(plots, cluster_ids) if cluster_id == cluster]
+            blocks.append(Block(cluster, block_plots))
+
+        return blocks
+
+        # for cluster, plot in zip(cluster_id, self.plots):
+            # plot.block = int(cluster)
 
     def _smooth_route(self, start_ID=None):
 
@@ -231,18 +240,9 @@ class Plan(object):
 
         #TODO: draw field
 
-        if (self.plots is not None):
-
-            self._draw_route(ax=ax)
-
-            for plot in self.plots:
-
-                if (hide_idle_plots and (not plot.work or plot.ignored)):
-                    idle_alpha = 0.3
-                else:
-                    idle_alpha = 1.0
-
-                _bounds = plot.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points, idle_alpha=idle_alpha)
+        if (self.blocks is not None):
+            for block in self.blocks:
+                _bounds = block.draw(ax=ax, show_ID=show_ID, show_plot=show_plot, show_AB_line=show_AB_line, show_AB=show_AB, show_end_points=show_end_points)
                 bounds[0] = tuple(np.minimum(_bounds[0], bounds[0]))
                 bounds[1] = tuple(np.maximum(_bounds[1], bounds[1]))
 
